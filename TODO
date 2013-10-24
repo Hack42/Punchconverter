@@ -1,0 +1,32 @@
+WitchDoc, 24 Oct. 2013.
+
+Minimum requirements;
+
+- This thing needs to convert codes between different types of punchtape readers and writers.
+- All codes are convertable to ascii(?)
+- Some codes, like "capslock", can change machine state.
+- Input can be file, stdin or serial
+- Output can be file, stdout or serial
+
+Nice to have;
+
+- Generic code, use config files for machines and add machines without coding (config files only)
+- direct conversion, hook up two machines and make them talk to each other
+
+Design.
+
+[Machine]
+  A class that converts ascii to machine specific data and vice versa.
+  Reads a config file and optionally opens a serial port
+  public methods;
+    init(name, config, output) # initialise machine
+    write(string) # Write to file or device
+    read() # read from file or device
+    open() # open output
+    close() # close output
+  private methods;
+    state() # change state, shift etc.
+
+Seems to me that Machine actually should inherit from the file class.
+    
+    
