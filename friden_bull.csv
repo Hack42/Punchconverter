@@ -1,0 +1,52 @@
+hex,ascii,"friden
+bull",upper
+1,,1,º
+2,,2,“
+4,,4,=
+7,,α,β
+8,,0,)
+B,,space,space
+D,cr,cr,crE,,´,`
+13,,3,:
+15,,5,%
+16,,6,*
+19,,stop read,stop read
+1A,,",",","
+1C,,tab,tab
+1F,,switch read,switch read
+20, ,7,/
+23,#,e,E
+25,%,g,G
+26,&,h,H
+29,),a,A
+31,1,c,
+32,2,d,
+34,4,f,
+37,7,lowercase,lowercase
+38,8,b,
+40,@,8,+
+43,C,n,N
+45,E,q,Q
+46,F,r,R
+49,I,j,J
+51,Q,l,L
+52,R,m,M
+54,T,p,P
+57,W,uppercase,uppercase
+58,X,k,K
+61,a,u,U
+62,b,v,V
+64,d,x,X
+67,g,punch off,punch off
+68,h,t,T
+6D,m,i,I
+70,p,9,(
+73,s,w,W
+75,u,y,Y
+76,v,z,Z
+79,y,s,S
+7C,|,o,O
+8F,ﾏ,^,¨
+97,ﾗ,.,.
+A7,ﾧ,&,;
+C7,ￇ,-,_
