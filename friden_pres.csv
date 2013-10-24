@@ -1,0 +1,52 @@
+hex,ascii,"friden
+ president",
+1,,1,“
+2,,2,&
+4,,4,=
+7,,7,/
+8,,8,+
+B,,ctrl,ctrl
+10,,space,space
+13,,3,;
+15,,5,%
+16,,6,?
+19,,9,(
+20, ,0,)
+23,#,t,T
+25,%,v,V
+26,&,w,W
+29,),z,Z
+2A,*,backspace,backspace
+2F,/,lowercase,lowercase
+31,1,´,`
+32,2,s,S
+34,4,u,U
+37,7,x,X
+38,8,y,Y
+3B,;,",",'
+3E,>,uppercase,uppercase
+43,C,l,L
+45,E,n,N
+46,F,o,O
+49,I,r,R
+4C,L,punch on,punch on
+51,Q,j,J
+52,R,k,K
+54,T,m,M
+57,W,p,P
+58,X,q,Q
+5B,[,^,¨
+61,a,a,A
+62,b,b,B
+64,d,d,D
+67,g,g,G
+68,h,h,H
+6B,k,.,:
+70,p,-,_
+73,s,c,C
+75,u,e,E
+76,v,f,F
+79,y,i,I
+7A,z,punch off,punch off
+7C,|,tab,tab
+80,ﾀ,cr,cr
