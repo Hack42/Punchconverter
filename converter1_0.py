@@ -27,8 +27,8 @@ print("Input file: %s" % args.input )
 print("format: %s" % args.format )
 
 
-# setup serial port
-port = serial.Serial(0) # open serial port
+# setup serial port to puncher (ours works on 1200BAUD max)
+port = serial.Serial(args.port) # open serial port
 port.baudrate = 1200
 print port.name
     
