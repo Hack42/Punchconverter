@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+# someinput = raw_input("input: ")
+
 __author__ =  'macsimski'
 import argparse
 import csv
@@ -8,7 +10,7 @@ import serial
 class Writer():
     def __init__(name, table):
         self._name = name
-        self._table = 
+        self._table = table 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Universal punchcode translator.',
@@ -19,7 +21,7 @@ fp=flexo president
 tsa=typesetter 6bit version a
 tsb=typesetter version b
 tx=ita2 telex""",required=True)
-	parser.add_argument('-p','--port', help='serial port',required=True)
+    parser.add_argument('-p','--port', help='serial port',required=True)
 args = parser.parse_args()
 
 #some feedback
@@ -28,9 +30,9 @@ print("format: %s" % args.format )
 
 
 # setup serial port to puncher (ours works on 1200BAUD max)
-port = serial.Serial(args.port) # open serial port
-port.baudrate = 1200
-print port.name
+# port = serial.Serial(args.port) # open serial port
+# port.baudrate = 1200
+# print port.name
     
 #read single chars from source file and parse them	
 with open(args.input) as f:
@@ -39,11 +41,8 @@ with open(args.input) as f:
 		if not c:
 			print "EOF"
 			break
-		
-parseto = {@ : escapechar,
-					1 : sqr,
-					
-}
+		displaytape(c)
+
 
 # convert between escapechars in the format @@xyz. if no solution is found, print all the chars
 # including @@
@@ -67,3 +66,11 @@ def escapechar():
 				pushout(c)
 			
 			
+def displaytape(b):
+	print '|',
+	for n in 8:
+		if n==2:
+			print '.',
+		if b&(1<<n):
+			print 'x',
+	print '|'
