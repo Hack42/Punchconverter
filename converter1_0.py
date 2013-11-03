@@ -16,18 +16,64 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Universal punchcode translator.',
         formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-i','--input', help='text input filename',required=True)
-    parser.add_argument('-f','--format', help="""fb=flexowriter Bull
-fp=flexo president
-tsa=typesetter 6bit version a
-tsb=typesetter version b
-tx=ita2 telex""",required=True)
-    parser.add_argument('-p','--port', help='serial port',required=True)
+    parser.add_argument('-f','--format', help="""fb=flexowriter Bull 
+	fp=flexo president
+	tsa=typesetter 6bit version a
+	tsb=typesetter version b
+	tx=ita2 telex""",required=True)
+    parser.add_argument('-p','--port', help='serial port',required=False)
 args = parser.parse_args()
 
 #some feedback
 print("Input file: %s" % args.input )
 print("format: %s" % args.format )
 
+def pushout(ch):
+	displaytape(ch)
+	
+def displaytape(ch):
+	for b in ch:
+		print '|',
+		for n in range(8):
+			if n==3:
+				print '*',
+			if ord(b)&(1<<n):
+				print 'O',
+			else: print '.',
+		print '|', b
+
+def escapechar(e):
+	d="-"
+	if e == '@':
+#		print "one"
+		try: e=f.read(1)
+		except: 
+			print "eof"
+			return
+			
+		if e == '@':
+#			print "two"
+			try: d=f.read(3)
+			except: 
+				print "eof"
+#			print d
+			e="-"
+			if d == "str":
+				e=0x19
+			elif d == "swr":
+				e='xx'
+				print e, "dus"
+			elif d == "lcs":
+				e =0x37
+			elif d == "ucs":
+				e=0x57
+			elif d == "pof":
+				e=0x67
+			else: return("1@")
+			return ("p")
+		else: return("2@")
+	else: 
+			return(e)
 
 # setup serial port to puncher (ours works on 1200BAUD max)
 # port = serial.Serial(args.port) # open serial port
@@ -35,42 +81,49 @@ print("format: %s" % args.format )
 # print port.name
     
 #read single chars from source file and parse them	
+
 with open(args.input) as f:
 	while True:
 		c= f.read(1)
 		if not c:
 			print "EOF"
 			break
-		displaytape(c)
+		d="-"
+		if c == '@':
+	#		print "one"
+			try: c=f.read(1)
+			except: 
+				print "eof"
+				break
+				
+			if c == '@':
+	#			print "two"
+				try: c=f.read(3)
+				except: 
+					print "eof"
+	#			print d
+				e="-"
+				if c == "str":
+					displaytape('\x19')
+				elif c == "swr":
+					displaytape('\x78\xa0\xa0\x78\x00')
+				elif c == "lcs":
+					displaytape('\x37')
+				elif c == "ucs":
+					displaytape('\x57')
+				elif c == "pof":
+					displaytape('\x67')
+				else: print "1@"
+			else: displaytape("@"+ c)
+#			displaytape(c)
+		else: 
+				displaytape(c)
+#		escapechar(c)
+#		displaytape(c)
+
 
 
 # convert between escapechars in the format @@xyz. if no solution is found, print all the chars
 # including @@
-def escapechar():
-		c=f.read(1)
-		if c == '@'
-			c=f.read(3)
-			if c == 'str':
-				c=0x19
-			elif c == 'swr':
-				c=0x1F
-			elif c == 'lcs':
-				c =0x37
-			elif c == 'ucs':
-				c=0x57
-			elif c == 'pof':
-				c=0x67
-			else pushout('@')
-			
-		else pushout('@')
-				pushout(c)
 			
 			
-def displaytape(b):
-	print '|',
-	for n in 8:
-		if n==2:
-			print '.',
-		if b&(1<<n):
-			print 'x',
-	print '|'
