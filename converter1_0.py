@@ -7,6 +7,8 @@ import argparse
 import csv
 import serial
 
+
+# cli arguments handling
 class Writer():
     def __init__(name, table):
         self._name = name
@@ -28,15 +30,13 @@ args = parser.parse_args()
 plaintextfile="plaintext_lookup.csv"
 
 
-#some feedback
+#some temp feedback
 
 print("Input file: %s" % args.input )
 print("format: %s" % args.format )
 
-def pushout(ch):
-	displaytape(ch)
 
-		
+# use stio as display to save punch paper. ascii-art representation of the tape
 def displaytape(ch):
 	for b in ch:
 		print '|',
@@ -48,9 +48,11 @@ def displaytape(ch):
 			else: print '.',
 		print '|', b
 
+# lookup code and show. temp stuff
 def translate(pri):
 	displaytape(plaindict[pri])
-	
+
+# handle non ascii caracters with a @@xxx type  not used anymore
 def escapechar(e):
 	d="-"
 	if e == '@':
@@ -89,6 +91,8 @@ def escapechar(e):
 # port.baudrate = 1200
 # print port.name
     
+    
+# ------------------ main code ----------------
 #read single chars from source file and parse them	
 with open(plaintextfile, mode='r') as infile:
 	reader = csv.reader(infile)
