@@ -24,13 +24,19 @@ if __name__ == "__main__":
     parser.add_argument('-p','--port', help='serial port',required=False)
 args = parser.parse_args()
 
+#some filenames
+plaintextfile="plaintext_lookup.csv"
+
+
 #some feedback
+
 print("Input file: %s" % args.input )
 print("format: %s" % args.format )
 
 def pushout(ch):
 	displaytape(ch)
-	
+
+		
 def displaytape(ch):
 	for b in ch:
 		print '|',
@@ -42,6 +48,9 @@ def displaytape(ch):
 			else: print '.',
 		print '|', b
 
+def translate(pri):
+	displaytape(int(chr(plaindict[pri])))
+	
 def escapechar(e):
 	d="-"
 	if e == '@':
@@ -81,7 +90,10 @@ def escapechar(e):
 # print port.name
     
 #read single chars from source file and parse them	
-
+with open(plaintextfile, mode='r') as infile:
+	reader = csv.reader(infile)
+	plaindict = {rows[1]:rows[2] for rows in reader}
+	
 with open(args.input) as f:
 	while True:
 		c= f.read(1)
@@ -90,34 +102,30 @@ with open(args.input) as f:
 			break
 		d="-"
 		if c == '@':
-	#		print "one"
 			try: c=f.read(1)
 			except: 
 				print "eof"
 				break
 				
 			if c == '@':
-	#			print "two"
 				try: c=f.read(3)
 				except: 
 					print "eof"
-	#			print d
 				e="-"
 				if c == "str":
-					displaytape('\x19')
+					translate('\x19')
 				elif c == "swr":
-					displaytape('\x78\xa0\xa0\x78\x00')
+					translate('\x78\xa0\xa0\x78\x00')
 				elif c == "lcs":
-					displaytape('\x37')
+					translate('\x37')
 				elif c == "ucs":
-					displaytape('\x57')
+					translate('\x57')
 				elif c == "pof":
-					displaytape('\x67')
+					translate('\x67')
 				else: print "1@"
-			else: displaytape("@"+ c)
-#			displaytape(c)
+			else: translate("@"+ c)
 		else: 
-				displaytape(c)
+				translate(c)
 #		escapechar(c)
 #		displaytape(c)
 
