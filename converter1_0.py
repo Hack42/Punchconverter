@@ -49,7 +49,7 @@ def displaytape(ch):
 		print '|', b
 
 def translate(pri):
-	displaytape(int(chr(plaindict[pri])))
+	displaytape(plaindict[pri])
 	
 def escapechar(e):
 	d="-"
@@ -92,7 +92,7 @@ def escapechar(e):
 #read single chars from source file and parse them	
 with open(plaintextfile, mode='r') as infile:
 	reader = csv.reader(infile)
-	plaindict = {rows[1]:rows[2] for rows in reader}
+	plaindict = {rows[0]:rows[1] for rows in reader}
 	
 with open(args.input) as f:
 	while True:
