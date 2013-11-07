@@ -51,8 +51,7 @@ def displaytape(ch):
 
 # lookup code and show. temp stuff
 def translate(pri):
-
-	displaytape(plaindict[pri])
+	for i in pri: displaytape(plaindict[i])
 
 
 
@@ -92,9 +91,12 @@ def escapechar(e):
 			return(e)
 
 def punchheader():
-	translate(' ')
+	room = '  '
+	translate(room)
 	for b in args.input: translate(b)
-	translate(' ')
+	translate('  code ')
+	translate(args.format)
+	translate('  >>|')
 # setup serial port to puncher (ours works on 1200BAUD max)
 # port = serial.Serial(args.port) # open serial port
 # port.baudrate = 1200
