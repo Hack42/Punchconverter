@@ -6,6 +6,7 @@ __author__ =  'macsimski'
 import argparse
 import csv
 import serial
+import array
 
 
 # cli arguments handling
@@ -50,7 +51,11 @@ def displaytape(ch):
 
 # lookup code and show. temp stuff
 def translate(pri):
+
 	displaytape(plaindict[pri])
+
+
+
 
 # handle non ascii caracters with a @@xxx type  not used anymore
 def escapechar(e):
@@ -86,6 +91,10 @@ def escapechar(e):
 	else: 
 			return(e)
 
+def punchheader():
+	translate(' ')
+	for b in args.input: translate(b)
+	translate(' ')
 # setup serial port to puncher (ours works on 1200BAUD max)
 # port = serial.Serial(args.port) # open serial port
 # port.baudrate = 1200
@@ -96,8 +105,9 @@ def escapechar(e):
 #read single chars from source file and parse them	
 with open(plaintextfile, mode='r') as infile:
 	reader = csv.reader(infile)
-	plaindict = {rows[0]:rows[1] for rows in reader}
+	plaindict = {rows[0]:rows[1].decode('hex') for rows in reader}
 	
+punchheader()	
 with open(args.input) as f:
 	while True:
 		c= f.read(1)
