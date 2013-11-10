@@ -24,8 +24,10 @@ import serial
 import array
 
 
+
 #- use stio as display to save punch paper. ascii-art representation of the tape
 def displaytape(ch):
+
 	for b in ch:
 		print '|',
 		for n in range(8):
@@ -34,43 +36,56 @@ def displaytape(ch):
 			if ord(b)&(1<<n):
 				print 'O',
 			else: print '.',
-		print '|', b
+		print '|', i
 
-def puchtape(h): #output
-	displaytape(h)
-	
-	
+def punchtape(h): #output
+	displaytape(h) # to screen
+#-	punch(h) # to paper # not done yet
+		
 	
 #- lookup code and set shiftstate
 def translate(pri):
+	global oldcase
+	global i
 	for i in pri:
 		try:
 			p = lowerdict[i]
 			uppercase = False
 		except KeyError:
+			print i, 'not lower'
 			try:
 				p= upperdict[i]
 				uppercase = True
 			except: 
+				print 'not upper'
 				punchtape(' ')
 				break
 		if (uppercase != oldcase) & uppercase:
 			punchtape(lowerdict['@@ucs'])
 			oldcase = uppercase
-		elif (uppercase != oldcase) & not uppercase:
+		elif (uppercase != oldcase) & (uppercase == False):
 			punchtape(lowerdict['@@lcs'])
 			oldcase = uppercase
 		else:
 			punchtape(p)
-	
+			
+def plainpunch(pri):
+	global i
+	for i in pri:
+		try:
+			p = plaindict[i]
+			punchtape(p)
+		except: punchtape(' ')
 
 def punchheader(): # punch asciiart filename at beginning
+#	print plaindict.items()
+#	print upperdict.items()
 	room = '  '
-	translate(room)
-	for b in args.input: translate(b)
-	translate('  code ')
-	translate(args.format)
-	translate('  >>|')
+	plainpunch(room)
+	for b in args.input: plainpunch(b)
+	plainpunch('  code ')
+	plainpunch(args.format)
+	plainpunch('  >>|')
 
 
 # ------------------ main code ----------------
@@ -94,21 +109,28 @@ if __name__ == "__main__":
     parser.add_argument('-p','--port', help='serial port',required=False)
 args = parser.parse_args()
 
-codedict = { 'fb':'friden_spd_lookup.csv',
-		'fp':'friden_pres_lookup.csv',
-		'tsa':'teletypeset_a_lookup.csv',
-		'tsb':'teletypeset_b_lookup.csv',
-		'tx':'ita2.csv'
-		'txt':'plaintext_lookup.csv' # not used yet. should produce a banner without header
+codedict = { 'fb':'friden_spd.csv',
+		'fp':'friden_pres.csv',
+		'tsa':'teletypeset_a.csv',
+		'tsb':'teletypeset_b.csv',
+		'tx':'ita2_table.csv',
+		'pt':'plaintext.csv' # not used yet. should produce a banner without header
 		}
 		
-#some filenames
-plaintextfile="plaintext_lookup.csv"
+#- ---------- declaration of several vars
+global uppercase
+global oldcase
+
+uppercase = False
+oldcase = False
+plaintextfile="plaintext.csv"
+
+
 try:
 	codefile = codedict[args.format]
 except 'KeyError':
 	print 'no known translation for that format found'
-	break # should be exit program gracefully
+	 # should be exit program gracefully
 #some debug feedback
 
 print("Input file: %s" % args.input )
@@ -116,27 +138,30 @@ print("format: %s" % args.format )
 
 #read single chars from source file and parse them
 # different coded from codefile
+plaindict={}
 try:
 	infile = open(plaintextfile, mode='r')
 	reader = csv.reader(infile)
-	plaindict = {rows[0]:rows[1].decode('hex') for rows in reader}
+	for rows in reader:
+		if rows[3]:
+			plaindict[rows[2]]=rows[3].decode('hex')
 except "FileNotFoundError":
 	print plaintextfile, " is not found"
-	
+upperdict ={}
+lowerdict={}
 try:
 	infile = open(codefile,mode='r')
 	reader = csv.reader(infile)
-	upperdict = {row[3]:row[1] for rows in reader}
-	lowerdict = {row[2]:row[1] for rows in reader}
+	for r in reader:
+		if r[3]:
+			upperdict[r[4]] = r[2]
+			lowerdict[r[3]] = r[2]
 except "FileNotFoundError":
 		print codefile, " cannot be found. sorry"
 
-global uppercase
-uppercase = false
-oldcase = false
 
 # ----------------- start punching ----------------
-punchheader()	
+punchheader()	# punch plaintext filename and codeformat on begin of tape
 with open(args.input) as f:
 	while True:
 		c= f.read(1)
@@ -152,15 +177,14 @@ with open(args.input) as f:
 			if c == '@': # ! second @ can be the beginning of a escape sequence
 				try: c=f.read(3)
 				except: 
-					print "kloar"
+					print "kloar" # ----- needs real code ---------
 					break
-				if c == "str":
-					translate('@@str')
-				elif c == "swr":
-					translate('@@swr')
-				elif c == "pof":
-					translate('@@pof')
-				else: translate("@@" + c) # no escape seq. print all
+				try:
+					t= lowerdict['@@' + c ] # lookup @@xyz as one thing
+					punchtape(t)
+				except 'KeyError':
+					translate("@@") # no escape seq. print all
+					translate(c)
 			else: translate("@"+ c) # print first '@' with the following 1 
 		else: # normal char
 				translate(c)
