@@ -1,6 +1,21 @@
 #!/usr/bin/env python
 
-# someinput = raw_input("input: ")
+#~ punchconverter
+
+#~ to convert plain ascii to the punchcodes available on several 
+#~ non-ascii machines using punchtape. Tape can be 5,6,7 or 8 bit, 
+#~ but that translation is not done here (could be build in though)
+#- call script like this:
+
+#- $ python converter1_0.py -f fb -i textfile.txt
+
+#- The filename is first printed as ascii-art followed by the code format
+#- so the command above will translate into:
+#- textfile.txt code: fb >| blabla
+#- so it is clear for what machine the punchtape is
+
+
+#- someinput = raw_input("input: ")
 
 __author__ =  'macsimski'
 import argparse
@@ -9,7 +24,59 @@ import serial
 import array
 
 
+#- use stio as display to save punch paper. ascii-art representation of the tape
+def displaytape(ch):
+	for b in ch:
+		print '|',
+		for n in range(8):
+			if n==3:
+				print '*',
+			if ord(b)&(1<<n):
+				print 'O',
+			else: print '.',
+		print '|', b
+
+def puchtape(h): #output
+	displaytape(h)
+	
+	
+	
+#- lookup code and set shiftstate
+def translate(pri):
+	for i in pri:
+		try:
+			p = lowerdict[i]
+			uppercase = False
+		except KeyError:
+			try:
+				p= upperdict[i]
+				uppercase = True
+			except: 
+				punchtape(' ')
+				break
+		if (uppercase != oldcase) & uppercase:
+			punchtape(lowerdict['@@ucs'])
+			oldcase = uppercase
+		elif (uppercase != oldcase) & not uppercase:
+			punchtape(lowerdict['@@lcs'])
+			oldcase = uppercase
+		else:
+			punchtape(p)
+	
+
+def punchheader(): # punch asciiart filename at beginning
+	room = '  '
+	translate(room)
+	for b in args.input: translate(b)
+	translate('  code ')
+	translate(args.format)
+	translate('  >>|')
+
+
+# ------------------ main code ----------------
+
 # cli arguments handling
+
 class Writer():
     def __init__(name, table):
         self._name = name
@@ -27,88 +94,48 @@ if __name__ == "__main__":
     parser.add_argument('-p','--port', help='serial port',required=False)
 args = parser.parse_args()
 
+codedict = { 'fb':'friden_spd_lookup.csv',
+		'fp':'friden_pres_lookup.csv',
+		'tsa':'teletypeset_a_lookup.csv',
+		'tsb':'teletypeset_b_lookup.csv',
+		'tx':'ita2.csv'
+		'txt':'plaintext_lookup.csv' # not used yet. should produce a banner without header
+		}
+		
 #some filenames
 plaintextfile="plaintext_lookup.csv"
-
-
-#some temp feedback
+try:
+	codefile = codedict[args.format]
+except 'KeyError':
+	print 'no known translation for that format found'
+	break # should be exit program gracefully
+#some debug feedback
 
 print("Input file: %s" % args.input )
 print("format: %s" % args.format )
 
-
-# use stio as display to save punch paper. ascii-art representation of the tape
-def displaytape(ch):
-	for b in ch:
-		print '|',
-		for n in range(8):
-			if n==3:
-				print '*',
-			if ord(b)&(1<<n):
-				print 'O',
-			else: print '.',
-		print '|', b
-
-# lookup code and show. temp stuff
-def translate(pri):
-	for i in pri: displaytape(plaindict[i])
-
-
-
-
-# handle non ascii caracters with a @@xxx type  not used anymore
-def escapechar(e):
-	d="-"
-	if e == '@':
-#		print "one"
-		try: e=f.read(1)
-		except: 
-			print "eof"
-			return
-			
-		if e == '@':
-#			print "two"
-			try: d=f.read(3)
-			except: 
-				print "eof"
-#			print d
-			e="-"
-			if d == "str":
-				e=0x19
-			elif d == "swr":
-				e='xx'
-				print e, "dus"
-			elif d == "lcs":
-				e =0x37
-			elif d == "ucs":
-				e=0x57
-			elif d == "pof":
-				e=0x67
-			else: return("1@")
-			return ("p")
-		else: return("2@")
-	else: 
-			return(e)
-
-def punchheader():
-	room = '  '
-	translate(room)
-	for b in args.input: translate(b)
-	translate('  code ')
-	translate(args.format)
-	translate('  >>|')
-# setup serial port to puncher (ours works on 1200BAUD max)
-# port = serial.Serial(args.port) # open serial port
-# port.baudrate = 1200
-# print port.name
-    
-    
-# ------------------ main code ----------------
-#read single chars from source file and parse them	
-with open(plaintextfile, mode='r') as infile:
+#read single chars from source file and parse them
+# different coded from codefile
+try:
+	infile = open(plaintextfile, mode='r')
 	reader = csv.reader(infile)
 	plaindict = {rows[0]:rows[1].decode('hex') for rows in reader}
+except "FileNotFoundError":
+	print plaintextfile, " is not found"
 	
+try:
+	infile = open(codefile,mode='r')
+	reader = csv.reader(infile)
+	upperdict = {row[3]:row[1] for rows in reader}
+	lowerdict = {row[2]:row[1] for rows in reader}
+except "FileNotFoundError":
+		print codefile, " cannot be found. sorry"
+
+global uppercase
+uppercase = false
+oldcase = false
+
+# ----------------- start punching ----------------
 punchheader()	
 with open(args.input) as f:
 	while True:
@@ -116,38 +143,28 @@ with open(args.input) as f:
 		if not c:
 			print "EOF"
 			break
-		d="-"
-		if c == '@':
+		if c == '@': # escape char?
 			try: c=f.read(1)
 			except: 
 				print "eof"
 				break
 				
-			if c == '@':
+			if c == '@': # ! second @ can be the beginning of a escape sequence
 				try: c=f.read(3)
 				except: 
-					print "eof"
-				e="-"
+					print "kloar"
+					break
 				if c == "str":
-					translate('\x19')
+					translate('@@str')
 				elif c == "swr":
-					translate('\x78\xa0\xa0\x78\x00')
-				elif c == "lcs":
-					translate('\x37')
-				elif c == "ucs":
-					translate('\x57')
+					translate('@@swr')
 				elif c == "pof":
-					translate('\x67')
-				else: print "1@"
-			else: translate("@"+ c)
-		else: 
+					translate('@@pof')
+				else: translate("@@" + c) # no escape seq. print all
+			else: translate("@"+ c) # print first '@' with the following 1 
+		else: # normal char
 				translate(c)
-#		escapechar(c)
-#		displaytape(c)
-
 
 
 # convert between escapechars in the format @@xyz. if no solution is found, print all the chars
 # including @@
-			
-			
