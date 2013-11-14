@@ -25,6 +25,7 @@
 
 #~ ----------- TODO ---------------
 
+ #~ no conversion for punch
 
 #~ ----------- DONE ---------------
 
@@ -151,7 +152,8 @@ if __name__ == "__main__":
 		fp=flexo president
 		tsa=typesetter 6bit version a
 		tsb=typesetter version b
-		tx=ita2 telex""",required=True)
+		tx=ita2 telex
+		pt=no conversion""",required=True)
 	parser.add_argument('-p','--port', help='serial port',default='/dev/ttyUSB0') # change for macs and or windows
 	parser.add_argument('-v','--verbose', help='y or n display on screen default n', action='store_true')
 	parser.add_argument('-n','--punch', help='do not open a serial port to punch', action='store_true')
@@ -193,7 +195,6 @@ if __name__ == "__main__":
 		except:
 			print args.port, " not available, sorry"
 			sys.exit(1)
-
 	try:
 		codefile = codedict[args.format]
 		print' '
@@ -219,47 +220,61 @@ if __name__ == "__main__":
 		print plaintextfile, " is not found"
 	upperdict ={}
 	lowerdict={}
-	try:
-		infile = open(codefile,mode='r')
-		reader = csv.reader(infile)
-		for r in reader:
-			if r[3]:
-				upperdict[r[4]] = int(r[0])
-				lowerdict[r[3]] = int(r[0])
-	except "FileNotFoundError":
-			print codefile, " cannot be found. sorry"
-			sys.exit(1)
-
+	if not args.format=='pt':
+		try:
+			infile = open(codefile,mode='r')
+			reader = csv.reader(infile)
+			for r in reader:
+				if r[3]:
+					upperdict[r[4]] = int(r[0])
+					lowerdict[r[3]] = int(r[0])
+		except "FileNotFoundError":
+				print codefile, " cannot be found. sorry"
+				sys.exit(1)
+	else:
+		print 'no conversion'
 	# ----------------- start punching ----------------
 	punchheader()	# punch plaintext filename and codeformat on begin of tape
-	with open(args.input) as f:
-		global i
-		while True:
-			c= f.read(1)
-			if not c:
-				print "EOF"
-				break
-			if c == '@': # escape char?
-				try: c=f.read(1)
-				except: 
-					print "eof"
+	if not args.format=='pt':
+		with open(args.input) as f:
+			global i
+			while True:
+				c= f.read(1)
+				if not c:
+					print "EOF"
 					break
-					
-				if c == '@': # ! second @ can be the beginning of a escape sequence
-					try: c=f.read(3)
+				if c == '@': # escape char?
+					try: c=f.read(1)
 					except: 
-						print "kloar" # ----- needs real code ---------
+						print "eof"
 						break
-					try:
-						t= lowerdict['@@' + c ] # lookup @@xyz as one thing
-						i=c
-						punchtape(t)
-					except 'KeyError':
-						translate("@@") # no escape seq. print all
+						
+					if c == '@': # ! second @ can be the beginning of a escape sequence
+						try: c=f.read(3)
+						except: 
+							print "kloar" # ----- needs real code ---------
+							break
+						try:
+							t= lowerdict['@@' + c ] # lookup @@xyz as one thing
+							i=c
+							punchtape(t)
+						except 'KeyError':
+							translate("@@") # no escape seq. print all
+							translate(c)
+					else: translate("@"+ c) # print first '@' with the following 1 
+				else: # normal char
 						translate(c)
-				else: translate("@"+ c) # print first '@' with the following 1 
-			else: # normal char
-					translate(c)
+	else:
+		with open(args.input) as f:
+			global i
+			for line in f:
+				for i in line:
+					c=i
+					if i==chr(13):
+						i='cr'
+					elif i==chr(10):
+						i='lf'
+					punchtape(ord(c))	
 	punchfooter()
 
 	# convert between escapechars in the format @@xyz. if no solution is found, print all the chars

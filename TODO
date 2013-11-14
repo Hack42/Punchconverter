@@ -28,5 +28,9 @@ Design.
     state() # change state, shift etc.
 
 Seems to me that Machine actually should inherit from the file class.
-    
+
+notes 14-11-2013 macsimski:
+
+Hmm. After finishing the 1.0 version i read this file. 
+Version 1.0 does not reflect the design above and is a clumsy, yet working python patch    
     
