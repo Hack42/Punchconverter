@@ -23,8 +23,18 @@
 #~ 	-save cell contents as shown
 #~ 	-quote all text cells
 
+#~ ----------- TODO ---------------
 
+
+#~ ----------- DONE ---------------
+
+ #~ -flexo spd
+ #~ -ita2
+ #~ -header and footer
+ #~ -plaintext code
+ 
 __author__ =  'macsimski'
+
 import argparse
 import csv
 import serial
@@ -53,8 +63,10 @@ def punch(ch):
 
 def punchtape(h): #output function accepts dec ascii number
 #	print h.encode("hex")
-	displaytape(h) # to screen
-	punch(h) # to paper # not done yet
+	if args.verbose:
+		displaytape(h) # to screen
+	if not args.punch:
+		punch(h) # to paper # not done yet
 		
 	
 #- lookup code and set shiftstate
@@ -105,7 +117,7 @@ def plainpunch(pri):
 			for d in range(0,len(p),2):
 #				print p[d:d+2]
 #				punchtape()
-				punchtape(int(p[d:d+2],16))
+				punchtape(int(p[d:d+2],16)>>8-bytedict[args.format])
 		except: 
 			print 'plain???'
 
@@ -141,18 +153,25 @@ if __name__ == "__main__":
 		tsb=typesetter version b
 		tx=ita2 telex""",required=True)
 	parser.add_argument('-p','--port', help='serial port',default='/dev/ttyUSB0') # change for macs and or windows
-		parser.add_argument('-v','--verbose', help='y or n display on screen default n', default=n)
-
+	parser.add_argument('-v','--verbose', help='y or n display on screen default n', action='store_true')
+	parser.add_argument('-n','--punch', help='do not open a serial port to punch', action='store_true')
 	args = parser.parse_args()
 
 	codedict = { 'fb':'friden_spd.csv',
 			'fp':'friden_pres.csv',
 			'tsa':'teletypeset_a.csv',
 			'tsb':'teletypeset_b.csv',
-			'tx':'ita2_table.csv',
+			'tx':'ita2.csv',
 			'pt':'plaintext.csv' # not used yet. should produce a banner without header
 			}
 			
+	bytedict = { 'fb':8,
+			'fp':8,
+			'tsa':6,
+			'tsb':6,
+			'tx':5,
+			'pt':8
+			}
 	#- ---------- declaration of several vars
 	global uppercase
 	global oldcase
@@ -160,20 +179,20 @@ if __name__ == "__main__":
 	uppercase = False
 	oldcase = False
 	plaintextfile="plaintext.csv"
-
-	try:
-		port = serial.Serial(
-			port=args.port, 
-			baudrate=600, 
-#			timeout=1,
-			parity=serial.PARITY_NONE,
-			stopbits=serial.STOPBITS_ONE,
-			bytesize=serial.EIGHTBITS,
-			)
-		print 'using: ', port.name
-	except:
-		print args.port, " not available, sorry"
-		sys.exit(1)
+	if not args.punch:
+		try:
+			port = serial.Serial(
+				port=args.port, 
+				baudrate=600, 
+	#			timeout=1,
+				parity=serial.PARITY_NONE,
+				stopbits=serial.STOPBITS_ONE,
+				bytesize=serial.EIGHTBITS,
+				)
+			print 'using: ', port.name
+		except:
+			print args.port, " not available, sorry"
+			sys.exit(1)
 
 	try:
 		codefile = codedict[args.format]
