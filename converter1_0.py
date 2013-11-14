@@ -30,31 +30,31 @@ import csv
 import serial
 import array
 import sys
+from time import sleep
 
 #- use stio as display to save punch paper. ascii-art representation of the tape
 def displaytape(ch):
 	global i
-#	for b in ch:
 	print '-',
 	for n in range(8):
-#		print n,
 		if n==3:
 			print '*',
 		if ((ch>>n)&1):
 			print 'O',
 		else: 
 			print '.',
-#		print n,
 	print '|', 
 	print i
 	#~ print  (ch>>2)&1
 	
 def punch(ch):
-	port.write (ch)
+#	sleep(0.05)
+	port.write (chr(ch))
 
 def punchtape(h): #output function accepts dec ascii number
+#	print h.encode("hex")
 	displaytape(h) # to screen
-#-	punch(h) # to paper # not done yet
+	punch(h) # to paper # not done yet
 		
 	
 #- lookup code and set shiftstate
@@ -106,19 +106,21 @@ def plainpunch(pri):
 #				print p[d:d+2]
 #				punchtape()
 				punchtape(int(p[d:d+2],16))
-#			punchtape(p)
 		except: 
-			#punchtape(' ')
-			print
+			print 'plain???'
 
 def punchheader(): # punch asciiart filename at beginning
 	room = '  '
 	plainpunch(room)
 	for b in args.input: plainpunch(b)
+	plainpunch (' ')
 	plainpunch('  code ')
 	plainpunch(args.format)
 	plainpunch('  >>|')
 
+def punchfooter():
+	room = '         '
+	plainpunch(room)
 
 # ------------------ main code ----------------
 
@@ -138,7 +140,9 @@ if __name__ == "__main__":
 		tsa=typesetter 6bit version a
 		tsb=typesetter version b
 		tx=ita2 telex""",required=True)
-	parser.add_argument('-p','--port', help='serial port',required=False)
+	parser.add_argument('-p','--port', help='serial port',default='/dev/ttyUSB0') # change for macs and or windows
+		parser.add_argument('-v','--verbose', help='y or n display on screen default n', default=n)
+
 	args = parser.parse_args()
 
 	codedict = { 'fb':'friden_spd.csv',
@@ -158,23 +162,29 @@ if __name__ == "__main__":
 	plaintextfile="plaintext.csv"
 
 	try:
-		# setup serial port
-		port = serial.Serial(0) # open serial port
-		port.baudrate = 1200
-		print port.name
+		port = serial.Serial(
+			port=args.port, 
+			baudrate=600, 
+#			timeout=1,
+			parity=serial.PARITY_NONE,
+			stopbits=serial.STOPBITS_ONE,
+			bytesize=serial.EIGHTBITS,
+			)
+		print 'using: ', port.name
 	except:
-		print "no port found, sorry"
+		print args.port, " not available, sorry"
 		sys.exit(1)
 
 	try:
 		codefile = codedict[args.format]
+		print' '
+		print 'codebase: ',codefile
 	except 'KeyError':
 		print 'no known translation for that format found'
-		 # should be exit program gracefully
+		sys.exit(1)		 
+		
 	#some debug feedback
-
-	print("Input file: %s" % args.input )
-	print("format: %s" % args.format )
+	
 
 	#read single chars from source file and parse them
 	# different coded from codefile
@@ -185,6 +195,7 @@ if __name__ == "__main__":
 		for rows in reader:
 			if rows[3]:
 				plaindict[rows[2]]=rows[3]
+		print("Input file: %s" % args.input )
 	except "FileNotFoundError":
 		print plaintextfile, " is not found"
 	upperdict ={}
@@ -198,7 +209,7 @@ if __name__ == "__main__":
 				lowerdict[r[3]] = int(r[0])
 	except "FileNotFoundError":
 			print codefile, " cannot be found. sorry"
-
+			sys.exit(1)
 
 	# ----------------- start punching ----------------
 	punchheader()	# punch plaintext filename and codeformat on begin of tape
@@ -230,7 +241,7 @@ if __name__ == "__main__":
 				else: translate("@"+ c) # print first '@' with the following 1 
 			else: # normal char
 					translate(c)
-
+	punchfooter()
 
 	# convert between escapechars in the format @@xyz. if no solution is found, print all the chars
 	# including @@
