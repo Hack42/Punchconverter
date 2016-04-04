@@ -1,0 +1,30 @@
+total 1672
+  4 drwxrwxr-x  3 simon simon   4096 Dec 30 12:36 .
+  4 drwxrwxr-x 12 simon simon   4096 Nov 24 21:48 ..
+ 16 -rw-rw-r--  1 simon simon  15336 Nov  3 22:31 5x5font.jpeg
+ 24 -rw-rw-r--  1 simon simon  22489 Nov 11 21:51 ASCII1.GIF
+152 -rw-rw-r--  1 simon simon 155268 Oct 25 23:51 ASCIIcode.gif
+  8 -rwxrwxr-x  1 simon simon   7613 Nov 24 16:38 converter1_0.py
+  0 -rw-rw-r--  1 simon simon      0 Dec 30 12:36 dir.txt
+  4 -rw-rw-r--  1 simon simon   1012 Nov 24 15:03 flexo_demobrief.txt
+  4 -rw-rw-r--  1 simon simon    966 Nov 23 14:32 flexo_demobrief.txt~
+356 -rw-rw-r--  1 simon simon 362324 Oct 25 23:51 flexowrcode.gif
+ 16 -rw-rw-r--  1 simon simon  13015 Dec 30 12:29 friden_pres.csv
+ 36 -rw-rw-r--  1 simon simon  35298 Dec 30 12:30 friden_pres.ods
+ 16 -rw-rw-r--  1 simon simon  13065 Nov 24 15:38 friden_spd.csv
+ 36 -rw-rw-r--  1 simon simon  35748 Nov 24 15:31 friden_spd.ods
+  4 drwxrwxr-x  8 simon simon   4096 Nov 14 20:46 .git
+  4 -rw-rw-r--  1 simon simon    339 Oct 25 23:51 .gitignore
+  4 -rw-rw-r--  1 simon simon   1601 Nov 14 18:34 ita2.csv
+ 24 -rw-rw-r--  1 simon simon  22207 Nov 14 17:26 ita2.ods
+  4 -rw-rw-r--  1 simon simon   1073 Oct 25 23:51 LICENSE
+  4 -rw-rw-r--  1 simon simon     85 Dec 30 12:30 .~lock.friden_pres.ods#
+  4 -rw-rw-r--  1 simon simon     85 Dec 28 14:23 .~lock.friden_spd.ods#
+208 -rw-rw-r--  1 simon simon 208951 Nov  3 19:51 Neue schrift.png
+ 16 -rw-rw-r--  1 simon simon  13211 Nov 23 16:09 plaintext.csv
+ 36 -rw-rw-r--  1 simon simon  33110 Nov 23 16:08 plaintext.ods
+  4 -rw-rw-r--  1 simon simon    976 Oct 25 23:51 README
+  4 -rwxrwxr-x  1 simon simon    265 Nov  6 17:20 select_rows_from_odf.py
+  4 -rw-rw-r--  1 simon simon     53 Nov 17 21:33 testfile.txt
+  4 -rw-rw-r--  1 simon simon   1168 Nov 14 20:45 TODO
+672 -rw-rw-r--  1 simon simon 685311 Oct 25 23:51 tts-etaino-2048x2969-w.jpg

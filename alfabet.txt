@@ -1,0 +1,6 @@
+@@retabcdefghijklmnopqrstuvwxyz 1234567890 
+ABCDEFGHIJKLMNOPQRSTUVWXYZ !@#$%^&*()_+-=
+	tab	tab	tab
+
+
+@@str

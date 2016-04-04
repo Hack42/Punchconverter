@@ -167,7 +167,7 @@ if __name__ == "__main__":
 		ba=textbanner 
 		pt=no conversion
 		""",default='pt')
-	parser.add_argument('-p','--port', help='serial port',default='/dev/ttyS0') # change for macs and or windows
+	parser.add_argument('-p','--port', help='serial port',default='/dev/ttyUSB0') # change for macs and or windows
 	parser.add_argument('-v','--verbose', help='y or n display on screen default n', action='store_true')
 	parser.add_argument('-n','--punch', help='do not open a serial port to punch', action='store_true')
 	args = parser.parse_args()
@@ -286,7 +286,7 @@ if __name__ == "__main__":
 						
 #~ ----------------------- no conversion ----------------
 	elif args.format=='pt': 
-		# punchheader()	# punch plaintext filename and codeformat on begin of tape
+		punchheader()	# punch plaintext filename and codeformat on begin of tape
 		with open(args.input) as f:
 			for line in f:
 				for i in line:
